@@ -69,3 +69,11 @@ def test_upstream_failure_returns_502(client, monkeypatch):
     monkeypatch.setattr(main, "fetch_weather", broken_fetch)
     resp = client.get("/weather", params={"city": "pune"})
     assert resp.status_code == 502
+
+
+def test_metrics_endpoint_exposes_counters(client):
+    client.get("/weather", params={"city": "delhi"})
+    text = client.get("/metrics").text
+    assert "http_requests_total" in text
+    assert 'path="/weather"' in text
+    assert "http_request_duration_seconds_bucket" in text
