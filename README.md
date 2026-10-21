@@ -6,9 +6,9 @@ A small weather API (using [Open-Meteo](https://open-meteo.com/)) that exposes m
 
 | Member | GitHub | Role | Owns |
 |---|---|---|---|
-| Krish Kalsi | [@KrishKalsi](https://github.com/KrishKalsi) | Telemetry and alerting | Repo setup, Prometheus metrics instrumentation, alert rules, traffic generator, architecture |
+| Krish Kalsi | [@KrishKalsi](https://github.com/KrishKalsi) | Telemetry and alerting | Repo setup, Prometheus metrics instrumentation, Dockerfile, alert rules, traffic generator, architecture |
 | Jaival Katira | [@JaivalKatira](https://github.com/JaivalKatira) | Backend developer | Weather API, Open-Meteo integration, caching, unit tests |
-|  |  | DevOps / infrastructure | Dockerfile, Docker Compose, Prometheus scraping |
+|  |  | DevOps / infrastructure | Docker Compose, Prometheus scraping configuration |
 |  |  | Observability / dashboards | Grafana setup and provisioning, telemetry dashboard |
 
 ## Architecture
