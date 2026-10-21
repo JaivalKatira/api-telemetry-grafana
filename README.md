@@ -6,14 +6,36 @@ A small weather API (using [Open-Meteo](https://open-meteo.com/)) that exposes m
 
 | Member | GitHub | Role | Owns |
 |---|---|---|---|
-| Krish Kalsi | [@KrishKalsi](https://github.com/KrishKalsi) | Telemetry and CI | Repo setup, Prometheus metrics instrumentation, alert rules, traffic generator, architecture |
+| Krish Kalsi | [@KrishKalsi](https://github.com/KrishKalsi) | Telemetry and alerting | Repo setup, Prometheus metrics instrumentation, alert rules, traffic generator, architecture |
 | Jaival Katira | [@JaivalKatira](https://github.com/JaivalKatira) | Backend developer | Weather API, Open-Meteo integration, caching, unit tests |
 |  |  | DevOps / infrastructure | Dockerfile, Docker Compose, Prometheus scraping |
 |  |  | Observability / dashboards | Grafana setup and provisioning, telemetry dashboard |
 
 ## Architecture
 
-_Coming soon._
+```mermaid
+flowchart LR
+    U["User / browser<br/>scripts/traffic.py"] -->|"GET /weather?city=delhi"| API
+
+    subgraph DC["Docker Compose network"]
+        API["Weather API<br/>FastAPI :8000<br/>in-memory cache"]
+        P["Prometheus :9090<br/>time-series database"]
+        G["Grafana :3000<br/>dashboard"]
+        P -->|"scrape GET /metrics every 5s"| API
+        G -->|"PromQL queries"| P
+    end
+
+    API -->|"cache miss only<br/>max once per city per 10 min"| OM["Open-Meteo<br/>public weather API"]
+    You["You"] -->|"open localhost:3000"| G
+```
+
+**How a request flows**
+
+1. A user (or `scripts/traffic.py`) calls `GET /weather?city=delhi` on our API.
+2. The API checks its cache. On a **miss**, it calls Open-Meteo and saves the result for 10 minutes. On a **hit**, it answers straight away.
+3. A middleware in the API times every request and updates two metrics: `http_requests_total` (counter) and `http_request_duration_seconds` (histogram).
+4. Every 5 seconds **Prometheus** scrapes `GET /metrics` and stores the numbers with a timestamp.
+5. **Grafana** asks Prometheus for the numbers with PromQL and draws request rate, latency (p50/p95/p99) and error rate.
 
 ## Tech stack
 
